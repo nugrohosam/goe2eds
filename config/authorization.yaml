@@ -1,7 +1,0 @@
-# session.yaml file
-
-authorization:
-  endpoints:
-    validate-token: "validate"
-    get-data-user: "profile"
-
