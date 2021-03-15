@@ -91,8 +91,6 @@ func loadConfigFile(envRootPath string) {
 			continue
 		}
 
-		fmt.Println(nameConfig)
-
 		viper.SetConfigName(nameConfig)
 		viper.AddConfigPath(rootPathConfig)
 

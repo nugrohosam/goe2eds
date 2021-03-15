@@ -67,9 +67,17 @@ func Prepare() {
 	v1 := Routes.Group("v1")
 
 	// v1/auth
-	auth := v1.Group("key")
-	auth.Use(gzip.Gzip(gzip.DefaultCompression)).Use(middlewares.AuthJwt())
+	key := v1.Group("key")
+	key.Use(gzip.Gzip(gzip.DefaultCompression)).Use(middlewares.AuthJwt())
 	{
-		auth.POST("", controllers.KeyHandlerCreate())
+		key.POST("", controllers.KeyHandlerCreate())
+	}
+
+	// v1/auth
+	message := v1.Group("message")
+	message.Use(gzip.Gzip(gzip.DefaultCompression)).Use(middlewares.AuthJwt())
+	{
+		message.POST("", controllers.MessageHandlerCreate())
+		message.POST("verify", controllers.MessageHandlerVerify())
 	}
 }

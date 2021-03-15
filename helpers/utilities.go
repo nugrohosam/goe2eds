@@ -3,21 +3,20 @@ package helpers
 import (
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/ecdsa"
 	"crypto/rand"
+	"crypto/x509"
 	"encoding/hex"
+	"encoding/pem"
 	"fmt"
-	"strings"
 	"io"
 	"net/http"
 	"reflect"
 	"strconv"
-	"unicode"	
-	"crypto/x509"
-	"encoding/pem"
-	"crypto/ecdsa"
+	"strings"
+	"unicode"
 
 	"github.com/gorilla/sessions"
-	resource "github.com/nugrohosam/goe2eds/services/http/resources/v1"
 	infrastructure "github.com/nugrohosam/goe2eds/services/infrastructure"
 	viper "github.com/spf13/viper"
 	redisStore "gopkg.in/boj/redistore.v1"
@@ -25,7 +24,6 @@ import (
 
 // MaxDepth ...
 const MaxDepth = 32
-
 
 // SetAuth ..
 func SetAuth(auth *Auth) {
@@ -38,30 +36,34 @@ func GetAuth() Auth {
 }
 
 // EncodeKey ..
-func DecodeKey(pemEncoded string, pemEncodedPub string) (*ecdsa.PrivateKey, *ecdsa.PublicKey) {
-    block, _ := pem.Decode([]byte(pemEncoded))
-    x509Encoded := block.Bytes
-    privateKey, _ := x509.ParseECPrivateKey(x509Encoded)
+func DecodePublicKey(pemEncodedPub string) *ecdsa.PublicKey {
+	blockPub, _ := pem.Decode([]byte(pemEncodedPub))
+	x509EncodedPub := blockPub.Bytes
+	genericPublicKey, _ := x509.ParsePKIXPublicKey(x509EncodedPub)
+	publicKey := genericPublicKey.(*ecdsa.PublicKey)
 
-    blockPub, _ := pem.Decode([]byte(pemEncodedPub))
-    x509EncodedPub := blockPub.Bytes
-    genericPublicKey, _ := x509.ParsePKIXPublicKey(x509EncodedPub)
-    publicKey := genericPublicKey.(*ecdsa.PublicKey)
+	return publicKey
+}
 
-    return privateKey, publicKey
+// EncodeKey ..
+func DecodePrivateKey(pemEncoded string) *ecdsa.PrivateKey {
+	block, _ := pem.Decode([]byte(pemEncoded))
+	x509Encoded := block.Bytes
+	privateKey, _ := x509.ParseECPrivateKey(x509Encoded)
+
+	return privateKey
 }
 
 // EncodePrivateKey ..
 func EncodeKey(privateKey *ecdsa.PrivateKey, publicKey *ecdsa.PublicKey) (string, string) {
-    x509Encoded, _ := x509.MarshalECPrivateKey(privateKey)
-    pemEncoded := pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: x509Encoded})
+	x509Encoded, _ := x509.MarshalECPrivateKey(privateKey)
+	pemEncoded := pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: x509Encoded})
 
-    x509EncodedPub, _ := x509.MarshalPKIXPublicKey(publicKey)
-    pemEncodedPub := pem.EncodeToMemory(&pem.Block{Type: "PUBLIC KEY", Bytes: x509EncodedPub})
+	x509EncodedPub, _ := x509.MarshalPKIXPublicKey(publicKey)
+	pemEncodedPub := pem.EncodeToMemory(&pem.Block{Type: "PUBLIC KEY", Bytes: x509EncodedPub})
 
-    return string(pemEncoded), string(pemEncodedPub)
+	return string(pemEncoded), string(pemEncodedPub)
 }
-
 
 // StoreCache ..
 func StoreCache(key string, data interface{}) error {
@@ -132,19 +134,6 @@ func GenerateLimitOffset(perPage, page string) (string, string) {
 	offset := perPageInt * (pageInt - 1)
 
 	return limit, fmt.Sprint(offset)
-}
-
-// BuildPaginate ..
-func BuildPaginate(perPage string, page string, total int, listItems interface{}, listItemResource interface{}) interface{} {
-	perPageInt, _ := strconv.Atoi(perPage)
-	pageInt, _ := strconv.Atoi(page)
-
-	return resource.Paginate{
-		Items:       listItemResource,
-		PerPage:     perPageInt,
-		Total:       total,
-		CurrentPage: pageInt,
-	}
 }
 
 // TypeName ..

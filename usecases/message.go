@@ -4,28 +4,20 @@ import (
 	"crypto/ecdsa"
 	"crypto/rand"
 	"crypto/sha256"
-	"fmt"
+
+	helpers "github.com/nugrohosam/goe2eds/helpers"
 )
 
-func CreateMessage(privateKey *ecdsa.PrivateKey, message []byte) {
+// CreateMessage ..
+func CreateMessage(privateKey string, message []byte) ([]byte, error) {
 	hash := sha256.Sum256(message)
-	
-	sign, err := ecdsa.SignASN1(rand.Reader, privateKey, hash[:])
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Println(sign)
+	decodedKey := helpers.DecodePrivateKey(privateKey)
+	return ecdsa.SignASN1(rand.Reader, decodedKey, hash[:])
 }
 
-func VerifyMessage(privateKey *ecdsa.PrivateKey, message []byte) {
+// VerifyMessage ..
+func VerifyMessage(publicKey string, sig, message []byte) (bool, error) {
 	hash := sha256.Sum256(message)
-
-	sig, err := ecdsa.SignASN1(rand.Reader, privateKey, hash[:])
-	if err != nil {
-		panic(err)
-	}
-
-	valid := ecdsa.VerifyASN1(&privateKey.PublicKey, hash[:], sig)
-	fmt.Println("signature verified:", valid)
+	decodedKey := helpers.DecodePublicKey(publicKey)
+	return ecdsa.VerifyASN1(decodedKey, hash[:], sig), nil
 }
