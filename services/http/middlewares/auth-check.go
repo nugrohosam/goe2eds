@@ -3,14 +3,13 @@ package middlewares
 import (
 	"net/http"
 	"strings"
-	"fmt"
 
 	"github.com/gin-gonic/gin"
 
 	validator "github.com/go-playground/validator/v10"
 	helpers "github.com/nugrohosam/goe2eds/helpers"
 	requests "github.com/nugrohosam/goe2eds/services/http/requests/v1"
-	usecases "github.com/nugrohosam/goe2eds/usecases"
+	"github.com/nugrohosam/goe2eds/services/infrastructure"
 )
 
 // AuthJwt using for ..
@@ -29,7 +28,7 @@ func AuthJwt() gin.HandlerFunc {
 		}
 
 		token := strings.Replace(header.Authorization, "Bearer ", "", len(header.Authorization))
-		if isValid, err := usecases.AuthorizationValidation(token); !isValid || err != nil {
+		if isValid, err := infrastructure.ValidateToken(token); !isValid || err != nil {
 			if err != nil {
 				c.JSON(http.StatusNotAcceptable, helpers.ResponseErr(err.Error()))
 			} else {
@@ -40,9 +39,13 @@ func AuthJwt() gin.HandlerFunc {
 			return
 		}
 
-		userData, _ := usecases.GetDataAuth(token)
-
-		fmt.Println(userData)
+		userData, _ := infrastructure.GetDataAuth(token)
+		helpers.SetAuth(&helpers.Auth{
+			ID:       int(userData["id"].(float64)),
+			Name:     userData["name"].(string),
+			Username: userData["username"].(string),
+			Email:    userData["email"].(string),
+		})
 
 		c.Next()
 	}

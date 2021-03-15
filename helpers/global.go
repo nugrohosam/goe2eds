@@ -1,4 +1,12 @@
 package helpers
 
-// TokenUser ..
-var TokenUser string
+// AuthUser ..
+var AuthUser *Auth
+
+// Auth ..
+type Auth struct {
+	ID       int
+	Name     string
+	Username string
+	Email    string
+}

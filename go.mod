@@ -14,6 +14,7 @@ require (
 	github.com/go-redis/redis/v8 v8.7.1
 	github.com/golang/protobuf v1.4.3
 	github.com/gorilla/sessions v1.2.1
+	github.com/jinzhu/copier v0.1.0
 	github.com/nugrohosam/gosampleapi v0.0.0-20210315083453-3757084f907b
 	github.com/segmentio/kafka-go v0.4.10
 	github.com/spf13/viper v1.7.1

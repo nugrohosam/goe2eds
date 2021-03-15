@@ -11,7 +11,10 @@ import (
 	"net/http"
 	"reflect"
 	"strconv"
-	"unicode"
+	"unicode"	
+	"crypto/x509"
+	"encoding/pem"
+	"crypto/ecdsa"
 
 	"github.com/gorilla/sessions"
 	resource "github.com/nugrohosam/goe2eds/services/http/resources/v1"
@@ -22,6 +25,42 @@ import (
 
 // MaxDepth ...
 const MaxDepth = 32
+
+
+// SetAuth ..
+func SetAuth(auth *Auth) {
+	AuthUser = auth
+}
+
+// GetAuth ..
+func GetAuth() Auth {
+	return *AuthUser
+}
+
+// EncodeKey ..
+func DecodeKey(pemEncoded string, pemEncodedPub string) (*ecdsa.PrivateKey, *ecdsa.PublicKey) {
+    block, _ := pem.Decode([]byte(pemEncoded))
+    x509Encoded := block.Bytes
+    privateKey, _ := x509.ParseECPrivateKey(x509Encoded)
+
+    blockPub, _ := pem.Decode([]byte(pemEncodedPub))
+    x509EncodedPub := blockPub.Bytes
+    genericPublicKey, _ := x509.ParsePKIXPublicKey(x509EncodedPub)
+    publicKey := genericPublicKey.(*ecdsa.PublicKey)
+
+    return privateKey, publicKey
+}
+
+// EncodePrivateKey ..
+func EncodeKey(privateKey *ecdsa.PrivateKey, publicKey *ecdsa.PublicKey) (string, string) {
+    x509Encoded, _ := x509.MarshalECPrivateKey(privateKey)
+    pemEncoded := pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: x509Encoded})
+
+    x509EncodedPub, _ := x509.MarshalPKIXPublicKey(publicKey)
+    pemEncodedPub := pem.EncodeToMemory(&pem.Block{Type: "PUBLIC KEY", Bytes: x509EncodedPub})
+
+    return string(pemEncoded), string(pemEncodedPub)
+}
 
 
 // StoreCache ..
