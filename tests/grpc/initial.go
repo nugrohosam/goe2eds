@@ -4,8 +4,8 @@ import (
 	"log"
 	"testing"
 
-	database "github.com/nugrohosam/gocashier/services/databases"
-	grpcServe "github.com/nugrohosam/gocashier/services/grpc"
+	database "github.com/nugrohosam/goe2eds/services/databases"
+	grpcServe "github.com/nugrohosam/goe2eds/services/grpc"
 	viper "github.com/spf13/viper"
 )
 

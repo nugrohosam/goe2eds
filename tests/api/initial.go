@@ -8,8 +8,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	database "github.com/nugrohosam/gocashier/services/databases"
-	httpServe "github.com/nugrohosam/gocashier/services/http"
+	database "github.com/nugrohosam/goe2eds/services/databases"
+	httpServe "github.com/nugrohosam/goe2eds/services/http"
 	viper "github.com/spf13/viper"
 )
 

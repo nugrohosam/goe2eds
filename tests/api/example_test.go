@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"testing"
 
-	factories "github.com/nugrohosam/gocashier/tests/factories"
-	utilities "github.com/nugrohosam/gocashier/tests/utilities"
+	factories "github.com/nugrohosam/goe2eds/tests/factories"
+	utilities "github.com/nugrohosam/goe2eds/tests/utilities"
 	viper "github.com/spf13/viper"
 	assert "github.com/stretchr/testify/assert"
 )

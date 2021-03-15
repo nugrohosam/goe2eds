@@ -1,7 +1,7 @@
 package factories
 
 import (
-	userRepo "github.com/nugrohosam/gocashier/repositories/user"
+	userRepo "github.com/nugrohosam/goe2eds/repositories/user"
 )
 
 // CreateUser ...

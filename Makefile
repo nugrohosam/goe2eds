@@ -4,7 +4,7 @@
 # architecture that was compiled in. The "ldflags" in the build assure that any needed dependency is included in the
 # binary and no external dependencies are needed to run the service.
 
-GOSAMPLEAPI_VERSION=$(shell git describe --always --long --dirty --tags)
+goe2eds_VERSION=$(shell git describe --always --long --dirty --tags)
 BIN_NAME=app
 
 all: deps build

@@ -44,10 +44,10 @@ if you want to seder data, run `$ ./cmd/seeder -file=namefile.yaml`
 - $ go run main.go
 
 ## Run Test API
-- $ go test github.com/nugrohosam/gosampleapi/tests/api
+- $ go test github.com/nugrohosam/goe2eds/tests/api
 
 ## Run Test GRPC
-- $ go test github.com/nugrohosam/gosampleapi/tests/grpc
+- $ go test github.com/nugrohosam/goe2eds/tests/grpc
 
 ## Checklist
 

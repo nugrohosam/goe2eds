@@ -1,4 +1,4 @@
-module github.com/nugrohosam/gocashier
+module github.com/nugrohosam/goe2eds
 
 go 1.15
 

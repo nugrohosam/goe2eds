@@ -13,8 +13,8 @@ import (
 	"unicode"
 
 	"github.com/gorilla/sessions"
-	resource "github.com/nugrohosam/gocashier/services/http/resources/v1"
-	infrastructure "github.com/nugrohosam/gocashier/services/infrastructure"
+	resource "github.com/nugrohosam/goe2eds/services/http/resources/v1"
+	infrastructure "github.com/nugrohosam/goe2eds/services/infrastructure"
 	viper "github.com/spf13/viper"
 	redisStore "gopkg.in/boj/redistore.v1"
 )

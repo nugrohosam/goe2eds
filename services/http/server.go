@@ -8,11 +8,11 @@ import (
 	"github.com/cnjack/throttle"
 	"github.com/gin-gonic/contrib/gzip"
 	"github.com/gin-gonic/gin"
-	"github.com/nugrohosam/gocashier/services/http/controllers"
-	"github.com/nugrohosam/gocashier/services/http/exceptions"
+	"github.com/nugrohosam/goe2eds/services/http/controllers"
+	"github.com/nugrohosam/goe2eds/services/http/exceptions"
 	"github.com/spf13/viper"
 
-	"github.com/nugrohosam/gocashier/services/http/middlewares"
+	"github.com/nugrohosam/goe2eds/services/http/middlewares"
 )
 
 // Routes ...
@@ -47,126 +47,29 @@ func Prepare() {
 		Within: time.Duration(rateLimiterTime) * time.Minute,
 	}))
 
-	Routes.Static("/assets", "./assets")
-	Routes.Static("/web", "./web")
+	Routes.Static("assets", "./assets")
+	Routes.Static("web", "./web")
 
 	Routes.Use(sentrygin.New(sentrygin.Options{
 		Repanic: true,
 	}))
 
-	Routes.Any("/test-throttle", func(c *gin.Context) {
+	Routes.Any("test-throttle", func(c *gin.Context) {
 		c.Writer.Write([]byte("hello world"))
 	})
 
 	// test-sentry
-	Routes.GET("/test-sentry", func(ctx *gin.Context) {
+	Routes.GET("test-sentry", func(ctx *gin.Context) {
 		panic("make panic test")
 	})
 
 	// v1
-	v1 := Routes.Group("/v1")
+	v1 := Routes.Group("v1")
 
 	// v1/auth
-	auth := v1.Group("/auth")
-	auth.Use(gzip.Gzip(gzip.DefaultCompression))
+	auth := v1.Group("key")
+	auth.Use(gzip.Gzip(gzip.DefaultCompression)).Use(middlewares.AuthJwt())
 	{
-		auth.POST("/login", controllers.AuthHandlerLogin())
-		auth.POST("/register", controllers.AuthHandlerRegister())
-	}
-
-	user := v1.Group("/user")
-	user.Use(gzip.Gzip(gzip.DefaultCompression), middlewares.AuthJwt())
-	{
-		user.GET("/profile", controllers.UserHandlerShow())
-		user.GET("/permissions", controllers.UserPermissionItsOwnHandlerIndex())
-		user.GET("/roles", controllers.UserRoleItsOwnHandlerIndex())
-		retrieveUserPermission := user.Use(middlewares.CanAccessWith(
-			[]string{
-				viper.GetString("permission.user.retrieve"),
-			},
-		))
-		{
-			retrieveUserPermission.GET("", controllers.UserHandlerIndex())
-		}
-	}
-
-	userRole := v1.Group("/user-role")
-	userRole.Use(gzip.Gzip(gzip.DefaultCompression), middlewares.AuthJwt())
-	{
-		retrieveUserRolePermission := userRole.Use(middlewares.CanAccessWith(
-			[]string{
-				viper.GetString("permission.user-role.retrieve"),
-			},
-		))
-		{
-			retrieveUserRolePermission.GET("/:id", controllers.UserRoleHandlerShow())
-			retrieveUserRolePermission.GET("", controllers.UserRoleHandlerIndex())
-		}
-
-		userRole.POST("", controllers.UserRoleHandlerCreate()).Use(middlewares.CanAccessWith(
-			[]string{
-				viper.GetString("user-role.role.create"),
-			},
-		))
-
-		userRole.DELETE("/:id", controllers.UserRoleHandlerDelete()).Use(middlewares.CanAccessWith(
-			[]string{
-				viper.GetString("user-role.role.delete"),
-			},
-		))
-	}
-
-	rolePermission := v1.Group("/role-permission")
-	rolePermission.Use(gzip.Gzip(gzip.DefaultCompression), middlewares.AuthJwt())
-	{
-		retrieveRolePermission := rolePermission.Use(middlewares.CanAccessWith(
-			[]string{
-				viper.GetString("permission.role.retrieve"),
-			},
-		))
-		{
-			retrieveRolePermission.GET("/:id", controllers.RolePermissionHandlerShow())
-			retrieveRolePermission.GET("", controllers.RolePermissionHandlerIndex())
-		}
-
-		rolePermission.POST("", controllers.RolePermissionHandlerCreate()).Use(middlewares.CanAccessWith(
-			[]string{
-				viper.GetString("permission.role.create"),
-			},
-		))
-
-		rolePermission.DELETE("/:id", controllers.RolePermissionHandlerDelete()).Use(middlewares.CanAccessWith(
-			[]string{
-				viper.GetString("permission.role.delete"),
-			},
-		))
-	}
-
-	role := v1.Group("/role")
-	role.Use(gzip.Gzip(gzip.DefaultCompression), middlewares.AuthJwt())
-	{
-		retrieveRole := role.Use(middlewares.CanAccessWith(
-			[]string{
-				viper.GetString("permission.role.retrieve"),
-			},
-		))
-		{
-			retrieveRole.GET("/:id", controllers.RoleHandlerShow())
-			retrieveRole.GET("", controllers.RoleHandlerIndex())
-		}
-	}
-
-	permission := v1.Group("/permission")
-	permission.Use(gzip.Gzip(gzip.DefaultCompression), middlewares.AuthJwt())
-	{
-		retrievePermission := permission.Use(middlewares.CanAccessWith(
-			[]string{
-				viper.GetString("permission.permission.retrieve"),
-			},
-		))
-		{
-			retrievePermission.GET("/:id", controllers.PermissionHandlerShow())
-			retrievePermission.GET("", controllers.PermissionHandlerIndex())
-		}
+		auth.POST("create", controllers.KeyHandlerStore())
 	}
 }

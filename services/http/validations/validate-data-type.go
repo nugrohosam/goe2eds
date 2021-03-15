@@ -6,6 +6,12 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+// SHOULD_BE_INTEGER ..
+const SHOULD_BE_INTEGER "should-be-integer";
+
+// SHOULD_BE_STRING ..
+const SHOULD_BE_STRING "should-be-string";
+
 // ShouldBeType ..
 type ShouldBeType struct {
 	Key      string
@@ -14,13 +20,13 @@ type ShouldBeType struct {
 
 // ValidateShouldBeInteger ...
 var ValidateShouldBeInteger = ShouldBeType{
-	Key:      "should-be-integer",
+	Key:      SHOULD_BE_INTEGER,
 	Function: ShouldBeIntegerFunc,
 }
 
 // ValidateShouldBeString ...
 var ValidateShouldBeString = ShouldBeType{
-	Key:      "should-be-string",
+	Key:      SHOULD_BE_STRING,
 	Function: ShouldBeStringFunc,
 }
 

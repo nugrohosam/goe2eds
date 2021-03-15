@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"strings"
 
-	database "github.com/nugrohosam/gocashier/services/databases"
+	database "github.com/nugrohosam/goe2eds/services/databases"
 	"github.com/romanyx/polluter"
 	"github.com/spf13/viper"
 )

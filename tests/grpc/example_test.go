@@ -5,8 +5,8 @@ import (
 	"log"
 	"testing"
 
-	pb "github.com/nugrohosam/gocashier/services/grpc/pb"
-	utilities "github.com/nugrohosam/gocashier/tests/utilities"
+	pb "github.com/nugrohosam/goe2eds/services/grpc/pb"
+	utilities "github.com/nugrohosam/goe2eds/tests/utilities"
 	viper "github.com/spf13/viper"
 	assert "github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"

@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	validator "github.com/go-playground/validator/v10"
-	validations "github.com/nugrohosam/gocashier/services/http/validations"
+	validations "github.com/nugrohosam/goe2eds/services/http/validations"
 )
 
 // TransformValidations ...
