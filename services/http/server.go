@@ -70,6 +70,6 @@ func Prepare() {
 	auth := v1.Group("key")
 	auth.Use(gzip.Gzip(gzip.DefaultCompression)).Use(middlewares.AuthJwt())
 	{
-		auth.POST("create", controllers.KeyHandlerStore())
+		auth.POST("", controllers.KeyHandlerCreate())
 	}
 }

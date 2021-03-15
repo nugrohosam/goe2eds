@@ -6,6 +6,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
+	"strings"
 	"io"
 	"net/http"
 	"reflect"
@@ -22,19 +23,15 @@ import (
 // MaxDepth ...
 const MaxDepth = 32
 
-// SetAuth ..
-func SetAuth(auth *Auth) {
-	AuthUser = auth
-}
-
-// GetAuth ..
-func GetAuth() Auth {
-	return *AuthUser
-}
 
 // StoreCache ..
 func StoreCache(key string, data interface{}) error {
 	return infrastructure.StoreCacheRedis(key, data)
+}
+
+// SetPath ..
+func SetPath(paths ...string) string {
+	return strings.Join(paths, "/")
 }
 
 // UnsetMap ..

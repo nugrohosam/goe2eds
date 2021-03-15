@@ -10,7 +10,7 @@ import (
 	validator "github.com/go-playground/validator/v10"
 	helpers "github.com/nugrohosam/goe2eds/helpers"
 	requests "github.com/nugrohosam/goe2eds/services/http/requests/v1"
-	requests "github.com/nugrohosam/goe2eds/services/infrastructure"
+	usecases "github.com/nugrohosam/goe2eds/usecases"
 )
 
 // AuthJwt using for ..
@@ -30,7 +30,12 @@ func AuthJwt() gin.HandlerFunc {
 
 		token := strings.Replace(header.Authorization, "Bearer ", "", len(header.Authorization))
 		if isValid, err := usecases.AuthorizationValidation(token); !isValid || err != nil {
-			c.JSON(http.StatusNotAcceptable, helpers.ResponseErr(err.Error()))
+			if err != nil {
+				c.JSON(http.StatusNotAcceptable, helpers.ResponseErr(err.Error()))
+			} else {
+				c.JSON(http.StatusNotAcceptable, helpers.ResponseErr("Unautorized"))
+			}
+
 			c.Abort()
 			return
 		}

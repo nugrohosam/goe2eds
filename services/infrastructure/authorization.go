@@ -12,12 +12,13 @@ func ValidateToken(token string) (bool, error) {
 	host := viper.GetString("authorization.grpc.host")
 	port := viper.GetString("authorization.grpc.port")
 
-	conn, err := grpc.Dial(host+":"+port, grpc.WithInsecure())
+	grpcUri := host+":"+port
+	conn, err := grpc.Dial(grpcUri, grpc.WithInsecure())
 	if err != nil {
 		return false, err
 	}
 	defer conn.Close()
-	client := pb.NewGetAuthServiceClient(conn)
+	client := pb.NewValidationServiceClient(conn)
 
 	ctx := context.Background()
 	req := &pb.GetAuthRequest{Token: token}
@@ -26,10 +27,10 @@ func ValidateToken(token string) (bool, error) {
 		return false, err
 	}
 
-	return res.valid, nil
+	return res.Valid, nil
 }
 
-func GetDataAuth(token string) map[string]interface{} {
+func GetDataAuth(token string) (map[string]interface{}, error) {
 	host := viper.GetString("authorization.grpc.host")
 	port := viper.GetString("authorization.grpc.port")
 
@@ -47,5 +48,12 @@ func GetDataAuth(token string) map[string]interface{} {
 		return nil, err
 	}
 
-	return res, nil
+	data := map[string]interface{}{
+		"id" : res.Id,
+		"name" : res.Name,
+		"username" : res.Username,
+		"email" : res.Email,
+	}
+
+	return data, nil
 }

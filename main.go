@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	helpers "github.com/nugrohosam/goe2eds/helpers"
-	database "github.com/nugrohosam/goe2eds/services/databases"
+	// database "github.com/nugrohosam/goe2eds/services/databases"
 	grpcConn "github.com/nugrohosam/goe2eds/services/grpc"
 	httpConn "github.com/nugrohosam/goe2eds/services/http"
 	infrastructure "github.com/nugrohosam/goe2eds/services/infrastructure"
@@ -27,7 +27,7 @@ func main() {
 		return
 	}
 
-	if !helpers.InArray(*serviceUse, []string{"http", "grpc"}) || *serviceUse == "none" {
+	if !helpers.StringInSlice(*serviceUse, []string{"http", "grpc"}) || *serviceUse == "none" {
 		fmt.Println("flag [--service=?] must be spellied in (http or grpc)")
 		return
 	}
@@ -36,9 +36,9 @@ func main() {
 
 	infrastructure.PrepareSentry()
 
-	if err := database.ConnOrm(); err != nil {
-		panic(err)
-	}
+	// if err := database.ConnOrm(); err != nil {
+	// 	panic(err)
+	// }
 
 	if *serviceUse == "grpc" {
 		if err := grpcConn.Serve(); err != nil {
@@ -91,6 +91,12 @@ func loadConfigFile(envRootPath string) {
 
 	for _, file := range files {
 		nameConfig = strings.ReplaceAll(file, ".yaml", "")
+
+		if nameConfig == ".gitignore" {
+			continue
+		}
+
+		fmt.Println(nameConfig)
 
 		viper.SetConfigName(nameConfig)
 		viper.AddConfigPath(rootPathConfig)

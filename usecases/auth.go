@@ -1,14 +1,14 @@
 package usecases
 
 import (
-	"github.com/nugrohosam/services/infrastructure"
+	"github.com/nugrohosam/goe2eds/services/infrastructure"
 )
 
-func AuthorizationValidation(token) (bool, error) {
+func AuthorizationValidation(token string) (bool, error) {
 	return infrastructure.ValidateToken(token)
 } 
 
 // GetDataAuth ...
-func GetDataAuth(tokenString string) (map[string]interface{}, error) {
+func GetDataAuth(token string) (map[string]interface{}, error) {
 	return infrastructure.GetDataAuth(token)
 }
