@@ -9,6 +9,6 @@ import (
 // KeyHandlerCreate is use
 func KeyHandlerCreate() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Next()
+		c.JSON(http.StatusOK, gin.H{"success" : true})
 	}
 }

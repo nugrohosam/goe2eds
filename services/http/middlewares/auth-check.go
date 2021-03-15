@@ -3,6 +3,7 @@ package middlewares
 import (
 	"net/http"
 	"strings"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 
@@ -28,19 +29,15 @@ func AuthJwt() gin.HandlerFunc {
 		}
 
 		token := strings.Replace(header.Authorization, "Bearer ", "", len(header.Authorization))
-		if err := usecases.AuthorizationValidation(token); err != nil {
+		if isValid, err := usecases.AuthorizationValidation(token); !isValid || err != nil {
 			c.JSON(http.StatusNotAcceptable, helpers.ResponseErr(err.Error()))
 			c.Abort()
 			return
 		}
 
 		userData, _ := usecases.GetDataAuth(token)
-		helpers.SetAuth(&helpers.Auth{
-			ID:       int(userData["id"].(float64)),
-			Name:     userData["name"].(string),
-			Username: userData["username"].(string),
-			Email:    userData["email"].(string),
-		})
+
+		fmt.Println(userData)
 
 		c.Next()
 	}

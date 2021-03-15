@@ -7,10 +7,10 @@ import (
 )
 
 // SHOULD_BE_INTEGER ..
-const SHOULD_BE_INTEGER "should-be-integer";
+const SHOULD_BE_INTEGER = "should-be-integer";
 
 // SHOULD_BE_STRING ..
-const SHOULD_BE_STRING "should-be-string";
+const SHOULD_BE_STRING = "should-be-string";
 
 // ShouldBeType ..
 type ShouldBeType struct {
