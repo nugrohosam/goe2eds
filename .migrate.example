@@ -1,0 +1,140 @@
+package main
+
+import (
+	"flag"
+	"fmt"
+	"strconv"
+	"time"
+
+	"github.com/spf13/viper"
+
+	"database/sql"
+
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database"
+	"github.com/golang-migrate/migrate/v4/database/mysql"
+	"github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
+	_ "github.com/lib/pq"
+)
+
+func main() {
+	state := flag.String("state", "none", "--")
+	stage := flag.String("stage", "dev", "--")
+	force := flag.String("force", "dev", "--")
+	howManyStep := flag.String("howmanystep", "none", "--")
+
+	flag.Parse()
+
+	if *stage == "none" {
+		fmt.Println("flag [--stage=?] must be spellied")
+		return
+	}
+
+	var step int64
+	if *state == "none" {
+		panic("Stop!!! state must be spellied")
+	} else if *state == "down" {
+		if *howManyStep == "none" {
+			panic("Stop!!! howmanystep must be spellied more than 0")
+		} else {
+			var err error
+			step, err = strconv.ParseInt(*howManyStep, 0, 32)
+			if step == 0 || err != nil {
+				panic("Stop!!! define howmanystep must be spellied more than 0")
+			}
+		}
+	}
+
+	// initial call to envinronment variable
+	if *stage == "prod" {
+		viper.SetConfigFile(".env.prod.yaml")
+	} else if *stage == "test" {
+		viper.SetConfigFile(".env.test.yaml")
+	} else {
+		viper.SetConfigFile(".env.yaml")
+	}
+
+	if err := viper.ReadInConfig(); err != nil {
+		panic(err)
+	}
+
+	dbUsername := viper.GetString("database.username")
+	dbPassword := viper.GetString("database.password")
+	dbHost := viper.GetString("database.host")
+	dbPort := viper.GetString("database.port")
+	dbName := viper.GetString("database.name")
+	dbDriver := viper.GetString("database.driver")
+	migrationPath := "file://migrations"
+
+	dsn := ""
+
+	var migrationExec *migrate.Migrate
+	var err error
+	var driver database.Driver
+	var db *sql.DB
+
+	if dbDriver == "mysql" {
+		dsn = dbUsername + ":" + dbPassword + "@tcp(" + dbHost + ":" + dbPort + ")/" + dbName + "?multiStatements=true&charset=utf8mb4&parseTime=True&loc=Local"
+		db, err = sql.Open("mysql", dsn)
+
+		// if there is an error opening the connection, handle it
+		if err != nil {
+			panic(err.Error())
+			return
+		}
+
+		driver, err = mysql.WithInstance(db, &mysql.Config{})
+		if err != nil {
+			panic(err.Error())
+			return
+		}
+	} else if dbDriver == "postgres" {
+		dsn = "postgres://" + dbUsername + ":" + dbPassword + "@" + dbHost + ":" + dbPort + "/" + dbName + "?" + "sslmode=disableTimeZone=Asia/Jakarta"
+		db, err = sql.Open("postgres", dsn)
+
+		// if there is an error opening the connection, handle it
+		if err != nil {
+			panic(err.Error())
+			return
+		}
+
+		driver, err = postgres.WithInstance(db, &postgres.Config{})
+		if err != nil {
+			panic(err.Error())
+			return
+		}
+	}
+
+	migrationExec, err = migrate.NewWithDatabaseInstance(
+		migrationPath,
+		dbDriver,
+		driver,
+	)
+
+	if err != nil {
+		panic(err.Error())
+		return
+	}
+
+	if *state == "up" {
+		if err := migrationExec.Up(); err != nil {
+			fmt.Println(err, "when up")
+			return
+		}
+	} else if *state == "down" {
+		stepIs := (int)(-step)
+		migrationExec.Steps(stepIs)
+	} else {
+		fmt.Println("State is not define right")
+	}
+
+	time.Sleep(4 * time.Second)
+	version, _, _ := migrationExec.Version()
+	fmt.Println("Migration", *state, "complete and now version :", version)
+
+	if *force == "true" {
+		migrationExec.Force(int(version))
+	}
+}

@@ -1,0 +1,1 @@
+protoc --proto_path=./assets/proto --proto_path=./third_party --go_out=plugins=grpc:./services/grpc/pb nameofservice.proto
