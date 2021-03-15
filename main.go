@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	helpers "github.com/nugrohosam/goe2eds/helpers"
-	// database "github.com/nugrohosam/goe2eds/services/databases"
 	grpcConn "github.com/nugrohosam/goe2eds/services/grpc"
 	httpConn "github.com/nugrohosam/goe2eds/services/http"
 	infrastructure "github.com/nugrohosam/goe2eds/services/infrastructure"
@@ -35,10 +34,6 @@ func main() {
 	loadConfigFile(*envRootPath)
 
 	infrastructure.PrepareSentry()
-
-	// if err := database.ConnOrm(); err != nil {
-	// 	panic(err)
-	// }
 
 	if *serviceUse == "grpc" {
 		if err := grpcConn.Serve(); err != nil {
