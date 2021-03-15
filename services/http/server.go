@@ -12,7 +12,7 @@ import (
 	"github.com/nugrohosam/goe2eds/services/http/exceptions"
 	"github.com/spf13/viper"
 
-	// "github.com/nugrohosam/goe2eds/services/http/middlewares"
+	"github.com/nugrohosam/goe2eds/services/http/middlewares"
 )
 
 // Routes ...
