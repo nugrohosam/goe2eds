@@ -321,7 +321,7 @@ func StoreSessionString(request *http.Request, writer http.ResponseWriter, nameS
 // GetPublicLink ..
 func GetPublicLink(filePath string) string {
 	host := viper.GetString("app.url")
-	port := viper.GetString("app.port")
+	port := viper.GetString("app.port_exposed")
 	urlLink := SetPath(host+":"+port, filePath)
 
 	return urlLink
