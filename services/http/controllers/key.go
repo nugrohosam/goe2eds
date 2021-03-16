@@ -11,7 +11,7 @@ import (
 // KeyHandlerCreate is use
 func KeyHandlerCreate() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		privKey, pubKey, err := usecases.CreateKey()
+		privKey, pubKey, urlLink, err := usecases.CreateKey()
 
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, helpers.ResponseErr(err.Error()))
@@ -19,9 +19,10 @@ func KeyHandlerCreate() gin.HandlerFunc {
 		}
 		
 		if len(privKey) > 0 && len(pubKey) > 0 {
-			data := map[string]interface{}{
+			data := gin.H{
 				"private_key": privKey,
 				"public_key": pubKey,
+				"url_cert": urlLink,
 			}
 
 			c.JSON(http.StatusOK, helpers.ResponseOne(data))

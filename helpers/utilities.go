@@ -15,6 +15,10 @@ import (
 	"strconv"
 	"strings"
 	"unicode"
+	mathRand "math/rand"
+	"path/filepath"
+	"os"
+	"io/ioutil"
 
 	"github.com/gorilla/sessions"
 	infrastructure "github.com/nugrohosam/goe2eds/services/infrastructure"
@@ -45,7 +49,19 @@ func DecodePublicKey(pemEncodedPub string) *ecdsa.PublicKey {
 	return publicKey
 }
 
-// EncodeKey ..
+// RandomString ..
+func RandomString(n int) string {
+	letterRunes := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letterRunes[mathRand.Intn(len(letterRunes))]
+	}
+
+	return string(b)
+}
+
+// DecodePrivateKey ..
 func DecodePrivateKey(pemEncoded string) *ecdsa.PrivateKey {
 	block, _ := pem.Decode([]byte(pemEncoded))
 	x509Encoded := block.Bytes
@@ -249,7 +265,8 @@ func Decrypt(encryptedString string, keyString string) (decryptedString string) 
 	return fmt.Sprintf("%s", plaintext)
 }
 
-func redisStoreSesssion() *redisStore.RediStore {
+// RedisStoreSesssion ..
+func RedisStoreSesssion() *redisStore.RediStore {
 	redisKey := viper.GetString("reids.key")
 	store, err := redisStore.NewRediStore(10, "tcp", ":6379", "", []byte(redisKey))
 	if err != nil {
@@ -259,10 +276,25 @@ func redisStoreSesssion() *redisStore.RediStore {
 	return store
 }
 
+// StoreFile ..
+func StoreFile(file []byte, filePath string) error {
+	folderOfFile := filepath.Dir(filePath)
+	FolderCheckAndCreate(folderOfFile)
+	return ioutil.WriteFile(filePath, file, 0755)
+}
+
+// FolderCheckAndCreate ..
+func FolderCheckAndCreate(folderPath string) {
+	info, err := os.Stat(folderPath)
+	if !(os.IsExist(err) && info.Mode().IsDir() && info.Mode().IsRegular()) {
+		os.MkdirAll(folderPath, os.ModePerm)
+	}
+}
+
 // StoreSessionString ..
 func StoreSessionString(request *http.Request, writer http.ResponseWriter, nameSession string, data string) {
 	if viper.GetString("session.driver") == "redis" {
-		store := redisStoreSesssion()
+		store := RedisStoreSesssion()
 		defer store.Close()
 	}
 
@@ -276,10 +308,19 @@ func StoreSessionString(request *http.Request, writer http.ResponseWriter, nameS
 	sessionNow.Save(request, writer)
 }
 
+// GetPublicLink ..
+func GetPublicLink(filePath string) string {
+	host := viper.GetString("app.url")
+	port := viper.GetString("app.port")
+	urlLink := SetPath(host+":"+port, filePath)
+
+	return urlLink
+}
+
 // GetSessionDataString ..
 func GetSessionDataString(request *http.Request, writer http.ResponseWriter, nameSession string) string {
 	if viper.GetString("session.driver") == "redis" {
-		store := redisStoreSesssion()
+		store := RedisStoreSesssion()
 		defer store.Close()
 	}
 
@@ -295,7 +336,7 @@ func GetSessionDataString(request *http.Request, writer http.ResponseWriter, nam
 // DeleteSessionDataString ..
 func DeleteSessionDataString(request *http.Request, writer http.ResponseWriter, nameSession string) error {
 	if viper.GetString("session.driver") == "redis" {
-		store := redisStoreSesssion()
+		store := RedisStoreSesssion()
 		defer store.Close()
 	}
 

@@ -54,7 +54,7 @@ func Prepare() {
 		Repanic: true,
 	}))
 
-	Routes.Any("test-throttle", func(c *gin.Context) {
+	Routes.GET("test-throttle", func(c *gin.Context) {
 		c.Writer.Write([]byte("hello world"))
 	})
 
@@ -64,20 +64,28 @@ func Prepare() {
 	})
 
 	// v1
-	v1 := Routes.Group("v1")
+	v1 := Routes.Group("v1").Use(middlewares.AuthJwt())
 
 	// v1/auth
 	key := v1.Group("key")
-	key.Use(gzip.Gzip(gzip.DefaultCompression)).Use(middlewares.AuthJwt())
+	key.Use(gzip.Gzip(gzip.DefaultCompression))
 	{
 		key.POST("", controllers.KeyHandlerCreate())
 	}
 
 	// v1/auth
 	message := v1.Group("message")
-	message.Use(gzip.Gzip(gzip.DefaultCompression)).Use(middlewares.AuthJwt())
+	message.Use(gzip.Gzip(gzip.DefaultCompression))
 	{
 		message.POST("", controllers.MessageHandlerCreate())
 		message.POST("verify", controllers.MessageHandlerVerify())
+	}
+
+	// v1/auth
+	file := v1.Group("file")
+	file.Use(gzip.Gzip(gzip.DefaultCompression))
+	{
+		file.POST("", controllers.MessageHandlerCreate())
+		file.POST("verify", controllers.MessageHandlerVerify())
 	}
 }

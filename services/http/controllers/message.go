@@ -31,7 +31,7 @@ func MessageHandlerCreate() gin.HandlerFunc {
 			return
 		}
 
-		data := map[string]interface{}{
+		data := gin.H{
 			"signature": signature,
 		}
 
