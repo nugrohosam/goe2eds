@@ -32,7 +32,7 @@ func AuthJwt() gin.HandlerFunc {
 			if err != nil {
 				c.JSON(http.StatusNotAcceptable, helpers.ResponseErr(err.Error()))
 			} else {
-				c.JSON(http.StatusNotAcceptable, helpers.ResponseErr("Unautorized"))
+				c.JSON(http.StatusUnauthorized, helpers.ResponseErr("Unautorized"))
 			}
 
 			c.Abort()
