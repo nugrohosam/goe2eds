@@ -8,6 +8,7 @@ import (
 	requests "github.com/nugrohosam/goe2eds/services/http/requests/v1"
 	"github.com/nugrohosam/goe2eds/usecases"
 
+	resources "github.com/nugrohosam/goe2eds/services/http/resources/v1"
 	"github.com/gin-gonic/gin"
 )
 
@@ -59,8 +60,8 @@ func MessageHandlerVerify() gin.HandlerFunc {
 			return
 		}
 
-		data := map[string]interface{}{
-			"is_valid": valid,
+		data := resources.MessageItem{
+			IsValid: valid,
 		}
 
 		c.JSON(http.StatusBadRequest, helpers.ResponseOne(data))

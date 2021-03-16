@@ -1,8 +1,7 @@
 package usecases
 
 import (
-	"crypto/ecdsa"
-	"crypto/elliptic"
+	"crypto/rsa"
 	"crypto/rand"
 	"crypto/x509"
 	"crypto/x509/pkix"
@@ -13,11 +12,9 @@ import (
 	helpers "github.com/nugrohosam/goe2eds/helpers"
 )
 
-var now = time.Now()
-
 // CreateKey ..
 func CreateKey() (string, string, string, error) {
-	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
 		return "", "", "", err
 	}
@@ -55,13 +52,4 @@ func CreateKey() (string, string, string, error) {
 	privKey, pubKey := helpers.EncodeKey(privateKey, &privateKey.PublicKey)
 
 	return privKey, pubKey, publicLink, err
-}
-
-func ParseCert(certData []byte) (*x509.Certificate, error) {
-	cert, err := x509.ParseCertificate(certData)
-	if err != nil {
-		return nil, err
-	}
-
-	return cert, nil
 }

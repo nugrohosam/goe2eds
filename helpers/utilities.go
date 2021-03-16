@@ -3,7 +3,7 @@ package helpers
 import (
 	"crypto/aes"
 	"crypto/cipher"
-	"crypto/ecdsa"
+	"crypto/rsa"
 	"crypto/rand"
 	"crypto/x509"
 	"encoding/hex"
@@ -39,14 +39,14 @@ func GetAuth() Auth {
 	return *AuthUser
 }
 
-// EncodeKey ..
-func DecodePublicKey(pemEncodedPub string) *ecdsa.PublicKey {
-	blockPub, _ := pem.Decode([]byte(pemEncodedPub))
-	x509EncodedPub := blockPub.Bytes
-	genericPublicKey, _ := x509.ParsePKIXPublicKey(x509EncodedPub)
-	publicKey := genericPublicKey.(*ecdsa.PublicKey)
+// ParseCert ..
+func ParseCert(cert []byte) (*x509.Certificate, error) {
+	parsedCert, err := x509.ParseCertificate(cert)
+	if err != nil {
+		return nil, err
+	}
 
-	return publicKey
+	return parsedCert, nil
 }
 
 // RandomString ..
@@ -61,21 +61,31 @@ func RandomString(n int) string {
 	return string(b)
 }
 
+// DecodePublicKey ..
+func DecodePublicKey(pemEncodedPub string) *rsa.PublicKey {
+	blockPub, _ := pem.Decode([]byte(pemEncodedPub))
+	x509EncodedPub := blockPub.Bytes
+	publicKey, _ := x509.ParsePKCS1PublicKey(x509EncodedPub)
+
+	return publicKey
+}
+
+
 // DecodePrivateKey ..
-func DecodePrivateKey(pemEncoded string) *ecdsa.PrivateKey {
+func DecodePrivateKey(pemEncoded string) *rsa.PrivateKey {
 	block, _ := pem.Decode([]byte(pemEncoded))
 	x509Encoded := block.Bytes
-	privateKey, _ := x509.ParseECPrivateKey(x509Encoded)
+	privateKey, _ := x509.ParsePKCS1PrivateKey(x509Encoded)
 
 	return privateKey
 }
 
-// EncodePrivateKey ..
-func EncodeKey(privateKey *ecdsa.PrivateKey, publicKey *ecdsa.PublicKey) (string, string) {
-	x509Encoded, _ := x509.MarshalECPrivateKey(privateKey)
+// EncodeKey ..
+func EncodeKey(privateKey *rsa.PrivateKey, publicKey *rsa.PublicKey) (string, string) {
+	x509Encoded := x509.MarshalPKCS1PrivateKey(privateKey)
 	pemEncoded := pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: x509Encoded})
 
-	x509EncodedPub, _ := x509.MarshalPKIXPublicKey(publicKey)
+	x509EncodedPub := x509.MarshalPKCS1PublicKey(publicKey)
 	pemEncodedPub := pem.EncodeToMemory(&pem.Block{Type: "PUBLIC KEY", Bytes: x509EncodedPub})
 
 	return string(pemEncoded), string(pemEncodedPub)

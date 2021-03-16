@@ -8,6 +8,7 @@ vendor
 .htaccess
 cmd/*
 assets/cert/*
+assets/pdf/*
 bin/*
 *.exe
 *.so

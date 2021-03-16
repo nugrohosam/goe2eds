@@ -64,7 +64,8 @@ func Prepare() {
 	})
 
 	// v1
-	v1 := Routes.Group("v1").Use(middlewares.AuthJwt())
+	v1 := Routes.Group("v1")
+	v1.Use(middlewares.AuthJwt())
 
 	// v1/auth
 	key := v1.Group("key")

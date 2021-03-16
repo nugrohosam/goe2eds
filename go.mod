@@ -19,6 +19,7 @@ require (
 	github.com/segmentio/kafka-go v0.4.10
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.7.0
+	github.com/unidoc/unipdf/v3 v3.19.1
 	google.golang.org/grpc v1.36.0
 	google.golang.org/protobuf v1.25.0
 	gopkg.in/boj/redistore.v1 v1.0.0-20160128113310-fc113767cd6b

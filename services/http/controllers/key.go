@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 	helpers "github.com/nugrohosam/goe2eds/helpers"
+	resources "github.com/nugrohosam/goe2eds/services/http/resources/v1"
 
 	"github.com/nugrohosam/goe2eds/usecases"
 	"github.com/gin-gonic/gin"
@@ -19,10 +20,10 @@ func KeyHandlerCreate() gin.HandlerFunc {
 		}
 		
 		if len(privKey) > 0 && len(pubKey) > 0 {
-			data := gin.H{
-				"private_key": privKey,
-				"public_key": pubKey,
-				"url_cert": urlLink,
+			data := resources.KeyItem{
+				PrivateKey: privKey,
+				PublicKey: pubKey,
+				UrlCert: urlLink,
 			}
 
 			c.JSON(http.StatusOK, helpers.ResponseOne(data))
