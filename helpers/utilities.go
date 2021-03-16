@@ -19,6 +19,7 @@ import (
 	"path/filepath"
 	"os"
 	"io/ioutil"
+	"mime/multipart"
 
 	"github.com/gorilla/sessions"
 	infrastructure "github.com/nugrohosam/goe2eds/services/infrastructure"
@@ -318,8 +319,32 @@ func StoreSessionString(request *http.Request, writer http.ResponseWriter, nameS
 	sessionNow.Save(request, writer)
 }
 
-// GetPublicLink ..
-func GetPublicLink(filePath string) string {
+// ReadFileRequest ..
+func ReadFileRequest(file *multipart.FileHeader) ([]byte, error) {
+	src, err := file.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer src.Close()
+
+	dst := viper.GetString("temp.root-path") + "/" + RandomString(5)
+	os.Mkdir(dst, 0755)
+
+	filePath := dst + "/" + file.Filename
+
+	out, err := os.Create(filePath)
+	if err != nil {
+		return nil, err
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, src)
+
+	return ioutil.ReadFile(filePath)
+}
+
+// SetPublicLink ..
+func SetPublicLink(filePath string) string {
 	host := viper.GetString("app.url")
 	port := viper.GetString("app.port_exposed")
 	urlLink := SetPath(host+":"+port, filePath)

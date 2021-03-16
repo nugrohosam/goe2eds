@@ -12,55 +12,79 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// MessageHandlerCreate is use
-func MessageHandlerCreate() gin.HandlerFunc {
+// FileHandlerCreate is use
+func FileHandlerCreate() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var message requests.CreateMessage
-		c.ShouldBindJSON(&message)
+		var file requests.CreateFile
+		c.ShouldBind(&file)
 
 		validate := helpers.NewValidation()
-		if err := validate.Struct(message); err != nil {
+		if err := validate.Struct(file); err != nil {
 			validationErrors := err.(validator.ValidationErrors)
 			fieldsErrors := helpers.TransformValidations(validationErrors)
 			c.JSON(http.StatusBadRequest, helpers.ResponseErrValidation(fieldsErrors))
 			return
 		}
 
-		signature, err := usecases.CreateMessage(message.PrivateKey, []byte(message.Message))
+		fileByte, err := helpers.ReadFileRequest(file.File)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, helpers.ResponseErr(err.Error()))
 			return
 		}
 
-		data := resources.SignatureMessageItem{
-			Signature: signature,
+		certByte, err := helpers.ReadFileRequest(file.Cert)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, helpers.ResponseErr(err.Error()))
+			return
+		}
+
+		fileUrl, err := usecases.CreateFile(file.PrivateKey, fileByte, certByte)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, helpers.ResponseErr(err.Error()))
+			return
+		}
+
+		data := resources.SignatureFileItem{
+			FileUrl: fileUrl,
 		}
 
 		c.JSON(http.StatusBadRequest, helpers.ResponseOne(data))
 	}
 }
 
-// MessageHandlerValidate is use
-func MessageHandlerVerify() gin.HandlerFunc {
+// FileHandlerValidate is use
+func FileHandlerVerify() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var message requests.VerifyMessage
-		c.ShouldBindJSON(&message)
+		var file requests.VerifyFile
+		c.ShouldBind(&file)
 
 		validate := helpers.NewValidation()
-		if err := validate.Struct(message); err != nil {
+		if err := validate.Struct(file); err != nil {
 			validationErrors := err.(validator.ValidationErrors)
 			fieldsErrors := helpers.TransformValidations(validationErrors)
 			c.JSON(http.StatusBadRequest, helpers.ResponseErrValidation(fieldsErrors))
 			return
 		}
 
-		valid, err := usecases.VerifyMessage(message.PublicKey, message.Signature, []byte(message.Message))
+		signByte, err := helpers.ReadFileRequest(file.SignatureFile)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, helpers.ResponseErr(err.Error()))
 			return
 		}
 
-		data := resources.MessageItem{
+		fileByte, err := helpers.ReadFileRequest(file.File)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, helpers.ResponseErr(err.Error()))
+			return
+		}
+
+		valid, err := usecases.VerifyFile(file.PublicKey, signByte, fileByte)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, helpers.ResponseErr(err.Error()))
+			return
+		}
+
+		data := resources.FileItem{
 			IsValid: valid,
 		}
 

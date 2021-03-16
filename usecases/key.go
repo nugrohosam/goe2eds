@@ -19,13 +19,13 @@ func CreateKey() (string, string, string, error) {
 		return "", "", "", err
 	}
 
-	userData := helpers.GetAuth()
+	// userData := helpers.GetAuth()
 
 	// Initialize X509 certificate template.
 	template := x509.Certificate{
 		SerialNumber: big.NewInt(1),
 		Subject: pkix.Name{
-			Organization: []string{userData.Email},
+			Organization: []string{"userData.Email"},
 		},
 		NotBefore: now.Add(-time.Hour),
 		NotAfter:  now.Add(time.Hour * 24 * 365),
@@ -47,7 +47,7 @@ func CreateKey() (string, string, string, error) {
 	filePath := helpers.SetPath(rootPathCert, nameCert) 
 
 	helpers.StoreFile(certData, filePath)
-	publicLink := helpers.GetPublicLink(filePath)
+	publicLink := helpers.SetPublicLink(filePath)
 	
 	privKey, pubKey := helpers.EncodeKey(privateKey, &privateKey.PublicKey)
 

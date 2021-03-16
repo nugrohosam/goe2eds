@@ -23,7 +23,7 @@ func KeyHandlerCreate() gin.HandlerFunc {
 			data := resources.KeyItem{
 				PrivateKey: privKey,
 				PublicKey: pubKey,
-				UrlCert: urlLink,
+				CertUrl: urlLink,
 			}
 
 			c.JSON(http.StatusOK, helpers.ResponseOne(data))

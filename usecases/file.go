@@ -1,13 +1,13 @@
 package usecases
 
 import (
-	"log"
 	"os"
 	"io/ioutil"
 	"time"
 	"crypto/sha256"
 	"crypto"
 	"crypto/rsa"
+	"github.com/spf13/viper"
 
 	helpers "github.com/nugrohosam/goe2eds/helpers"
 
@@ -21,80 +21,81 @@ var now = time.Now()
 
 const usage = "Usage: %s INPUT_PDF_PATH OUTPUT_PDF_PATH\n"
 
-func CreateFile(privateKey string, contentPdf, cert []byte) {
+func CreateFile(privateKey string, contentPdf, cert []byte) (string, error) {
 
 	decodedKey := helpers.DecodePrivateKey(privateKey)
 	parsedCert, err := helpers.ParseCert(cert)
 	if err != nil {
-		log.Fatal("Fail: %v\n", err)
+		return "", err
 	}
 	
-	randomNameFilePdf :=  helpers.RandomString(10) + ".pdf"
+	formatPdf := viper.GetString("pdf.format")
+	randomNameFilePdf :=  helpers.RandomString(10) + "." + formatPdf
 	
 	tmpfile, err := ioutil.TempFile("", randomNameFilePdf)	
 	if err != nil {
-		log.Fatal("Fail: %v\n", err)
+		return "", err
 	}
 	defer os.Remove(tmpfile.Name())
 	tmpfile.Write(contentPdf)
 	defer tmpfile.Close()
-
+	
 	reader, err := model.NewPdfReader(tmpfile)
 	if err != nil {
-		log.Fatal("Fail: %v\n", err)
+		return "", err
 	}
-
+	
 	// Create appender.
 	appender, err := model.NewPdfAppender(reader)
 	if err != nil {
-		log.Fatal("Fail: %v\n", err)
+		return "", err
 	}
-
-	// Create signature handler.
+	
+	// Create sig handler.
 	handler, err := sighandler.NewAdobePKCS7Detached(decodedKey, parsedCert)
 	if err != nil {
-		log.Fatal("Fail: %v\n", err)
+		return "", err
 	}
-
-	// Create signature.
-	signature := model.NewPdfSignature(handler)
-	signature.SetName("Test Self Signed PDF")
-	signature.SetReason("TestSelfSignedPDF")
-	signature.SetDate(now, "")
-
-	if err := signature.Initialize(); err != nil {
-		log.Fatal("Fail: %v\n", err)
+	
+	// Create sig.
+	sig := model.NewPdfSignature(handler)
+	sig.SetName("Test Self Signed PDF")
+	sig.SetReason("TestSelfSignedPDF")
+	sig.SetDate(now, "")
+	
+	if err := sig.Initialize(); err != nil {
+		return "", err
 	}
-
-	// Create signature field and appearance.
+	
+	// Create sig field and appearance.
 	opts := annotator.NewSignatureFieldOpts()
 	opts.FontSize = 10
 	opts.Rect = []float64{10, 25, 75, 60}
-
+	
 	field, err := annotator.NewSignatureField(
-		signature,
+		sig,
 		[]*annotator.SignatureLine{
 			annotator.NewSignatureLine("Name", "John Doe"),
-			annotator.NewSignatureLine("Date", "2019.16.04"),
-			annotator.NewSignatureLine("Reason", "External signature test"),
 		},
 		opts,
 	)
+
 	field.T = core.MakeString("Self signed PDF")
-
 	if err = appender.Sign(1, field); err != nil {
-		log.Fatal("Fail: %v\n", err)
+		return "", err
 	}
-
-	outputPath := helpers.SetPath("assets/pdf", randomNameFilePdf)
-
-	// Write output PDF file.
+	
+	rootPathPdf := viper.GetString("pdf.root-path")
+	outputPath := helpers.SetPath(rootPathPdf, randomNameFilePdf)
+	
 	err = appender.WriteToFile(outputPath)
 	if err != nil {
-		log.Fatal("Fail: %v\n", err)
+		return "", err
 	}
 
-	log.Printf("PDF file successfully signed. Output path: %s\n", outputPath)
+	publicLink := helpers.SetPublicLink(outputPath)
+
+	return publicLink, err
 }
 
 // VerifyFile ..
