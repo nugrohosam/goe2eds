@@ -2,7 +2,8 @@ package controllers
 
 import (
 	"net/http"
-
+	"strings"
+	"fmt"
 	"github.com/go-playground/validator/v10"
 	helpers "github.com/nugrohosam/goe2eds/helpers"
 	requests "github.com/nugrohosam/goe2eds/services/http/requests/v1"
@@ -38,7 +39,8 @@ func FileHandlerCreate() gin.HandlerFunc {
 			return
 		}
 
-		fileUrl, err := usecases.CreateFile(file.PrivateKey, fileByte, certByte)
+		formatedString := fmt.Sprintf("%s", strings.Replace(file.PrivateKey, `\n`, "\n", -1))
+		fileUrl, err := usecases.CreateFile(formatedString, fileByte, certByte)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, helpers.ResponseErr(err.Error()))
 			return
@@ -77,8 +79,9 @@ func FileHandlerVerify() gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, helpers.ResponseErr(err.Error()))
 			return
 		}
-
-		valid, err := usecases.VerifyFile(file.PublicKey, signByte, fileByte)
+		
+		formatedString := fmt.Sprintf("%s", strings.Replace(file.PublicKey, `\n`, "\n", -1))
+		valid, err := usecases.VerifyFile(formatedString, signByte, fileByte)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, helpers.ResponseErr(err.Error()))
 			return
