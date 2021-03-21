@@ -12,7 +12,7 @@ import (
 	"github.com/nugrohosam/goe2eds/services/http/exceptions"
 	"github.com/spf13/viper"
 
-	// "github.com/nugrohosam/goe2eds/services/http/middlewares"
+	"github.com/nugrohosam/goe2eds/services/http/middlewares"
 )
 
 // Routes ...
@@ -65,7 +65,7 @@ func Prepare() {
 
 	// v1
 	v1 := Routes.Group("v1")
-	// v1.Use(middlewares.AuthJwt())
+	v1.Use(middlewares.AuthJwt())
 
 	// v1/auth
 	key := v1.Group("key")
