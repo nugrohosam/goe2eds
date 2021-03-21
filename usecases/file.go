@@ -4,7 +4,6 @@ import (
 	"os"
 	"io/ioutil"
 	"time"
-	"fmt"
 	"crypto/sha256"
 	"crypto"
 	"crypto/rsa"
