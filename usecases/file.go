@@ -16,22 +16,24 @@ var now = time.Now()
 const usage = "Usage: %s INPUT_PDF_PATH OUTPUT_PDF_PATH\n"
 
 func CreateFile(privateKey string, contentPdf, cert []byte) (string, error) {
-	decodedKey := helpers.DecodePrivateKey(privateKey)
-	parsedCert, err := helpers.ParseCert(cert)
-	if err != nil {
-		return "", err
-	}
 	
-	formatPdf := viper.GetString("pdf.format")
-	randomNameFilePdf := helpers.RandomString(10) + "." + formatPdf
+	// TODO Refactor
+	// decodedKey := helpers.DecodePrivateKey(privateKey)
+	// parsedCert, err := helpers.ParseCert(cert)
+	// if err != nil {
+	// 	return "", err
+	// }
 	
-	tmpfile, err := ioutil.TempFile("", randomNameFilePdf)	
-	if err != nil {
-		return "", err
-	}
-	defer os.Remove(tmpfile.Name())
-	tmpfile.Write(contentPdf)
-	defer tmpfile.Close()
+	// formatPdf := viper.GetString("pdf.format")
+	// randomNameFilePdf := helpers.RandomString(10) + "." + formatPdf
+	
+	// tmpfile, err := ioutil.TempFile("", randomNameFilePdf)	
+	// if err != nil {
+	// 	return "", err
+	// }
+	// defer os.Remove(tmpfile.Name())
+	// tmpfile.Write(contentPdf)
+	// defer tmpfile.Close()
 	
 	return "", err
 }
